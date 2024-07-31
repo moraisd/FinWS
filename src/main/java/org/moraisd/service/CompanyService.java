@@ -17,6 +17,6 @@ public class CompanyService {
     }
 
     public void testingRepository() {
-//        val result = companyRepository.findAll();
+        val result = companyRepository.findAll();
     }
 }

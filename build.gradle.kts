@@ -12,18 +12,21 @@ val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
+val lombokPlatformVersion: String by project
+
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
-    implementation("io.quarkus:quarkus-rest")
     implementation("io.quarkus:quarkus-config-yaml")
-    implementation("io.quarkus:quarkus-mongodb-client")
     implementation("io.quarkus:quarkus-mongodb-panache")
     implementation("io.quarkus:quarkus-rest-jackson")
-    implementation("io.quarkus:quarkus-arc")
-    implementation("org.projectlombok:lombok:1.18.34")
-    testImplementation("io.quarkus:quarkus-junit5")
+    implementation("io.quarkus:quarkus-smallrye-graphql")
     testImplementation("io.quarkus:quarkus-junit5-mockito")
     testImplementation("io.rest-assured:rest-assured")
+
+    compileOnly("org.projectlombok:lombok:${lombokPlatformVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokPlatformVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokPlatformVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokPlatformVersion}")
 }
 
 group = "org.moraisd"
