@@ -21,6 +21,7 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-smallrye-graphql")
     testImplementation("io.quarkus:quarkus-junit5-mockito")
+    testImplementation("io.quarkus:quarkus-panache-mock")
     testImplementation("io.rest-assured:rest-assured")
 
     compileOnly("org.projectlombok:lombok:${lombokPlatformVersion}")

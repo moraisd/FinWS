@@ -1,16 +1,24 @@
 package org.moraisd.resource;
 
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.graphql.DefaultValue;
 import org.eclipse.microprofile.graphql.GraphQLApi;
-import org.eclipse.microprofile.graphql.Name;
+import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
 import org.moraisd.domain.Company;
+import org.moraisd.graphql.Filter;
 import org.moraisd.repository.CompanyRepository;
 
 import java.util.List;
 
 @GraphQLApi
 public class CompanyResource {
+
+    private final String DEFAULT_FILTER = """
+            {
+                "orderBy":"MarketCapitalization",
+                "sortingOrder":"Descending"
+            }""";
 
     private final CompanyRepository repository;
 
@@ -20,11 +28,17 @@ public class CompanyResource {
     }
 
     @Query
-    public Company getCompany(@Name("symbol") String symbol) {
+    public Company getCompany(String symbol) {
         return repository.findBySymbol(symbol);
     }
 
-    @Query public List<Company> getAllCompanies(){
-        return repository.listAll();
+    @Query
+    public List<Company> getCompanies(@DefaultValue(DEFAULT_FILTER) Filter filter) {
+        return repository.findByFilter(filter);
+    }
+
+    @Mutation
+    public void persistStock(List<Company> stock) {
+        repository.persist(stock);
     }
 }
