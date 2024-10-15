@@ -73,7 +73,8 @@ class CompanyRepositoryTest {
         paramsArgumentCaptor.capture());
 
     assertEquals(
-        filter1Field + filter1Operator + "?1 and " + filter2Field + filter2Operator + "?2",
+        filter1Field + " " + filter1Operator + " " + "?1 and " + filter2Field + " "
+            + filter2Operator + " " + "?2",
         queryCaptor.getValue());
 
     val column = sortArgumentCaptor.getValue().getColumns().getFirst();

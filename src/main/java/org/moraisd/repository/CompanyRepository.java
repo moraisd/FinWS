@@ -50,7 +50,7 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
 
   private static void generatePanacheQuery(StringBuilder query, FilterBy filterBy, int index,
       int filtersAmount) {
-    query.append(filterBy.getField()).append(filterBy.getOperator())
+    query.append(filterBy.getField()).append(' ').append(filterBy.getOperator()).append(' ')
         .append("?").append(index + 1);
     if (index != filtersAmount - 1) {
       query.append(" and ");
