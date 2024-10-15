@@ -9,28 +9,28 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 @MongoEntity(collection = "companies")
 public class Company extends PanacheMongoEntity {
 
-    @BsonProperty("Symbol")
-    public String symbol;
-    @BsonProperty("Sector")
-    public String sector;
-    @BsonProperty("Industry")
-    public String industry;
-    @BsonProperty("Currency")
-    public String currency;
-    @BsonProperty("EBITDA")
-    public long ebitda;
-    @BsonProperty("MarketCapitalization")
-    public long marketCapitalization;
-    @BsonProperty("PERatio")
-    public float peRatio;
-    @BsonProperty("EVToEBITDA")
-    public float evToEbitda;
-    @BsonProperty("OperatingCashFlow")
-    public long operatingCashFlow;
-    @BsonProperty("CapitalExpenditures")
-    public long capitalExpenditures;
-    @BsonProperty("SharesOutstanding")
-    public String sharesOutstanding;
+  @BsonProperty("Symbol")
+  public String symbol;
+  @BsonProperty("Sector")
+  public String sector;
+  @BsonProperty("Industry")
+  public String industry;
+  @BsonProperty("Currency")
+  public String currency;
+  @BsonProperty("EBITDA")
+  public float ebitda;
+  @BsonProperty("MarketCapitalization")
+  public float marketCapitalization;
+  @BsonProperty("PERatio")
+  public float peRatio;
+  @BsonProperty("EVToEBITDA")
+  public float evToEbitda;
+  @BsonProperty("OperatingCashFlow")
+  public float operatingCashFlow;
+  @BsonProperty("CapitalExpenditures")
+  public float capitalExpenditures;
+  @BsonProperty("SharesOutstanding")
+  public String sharesOutstanding;
 
 
 }
