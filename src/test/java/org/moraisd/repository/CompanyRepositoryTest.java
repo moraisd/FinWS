@@ -50,7 +50,7 @@ class CompanyRepositoryTest {
 
   @Test
   void shouldTestMultipleFilterBy() {
-    val filter1Field = "EVToEBITDA";
+    val filter1Field = "evToEbitda";
     val filter1Operator = "<=";
     val filter1Value = "5.5";
     val filterBy1 = generateFilterBy(filter1Field, filter1Operator, filter1Value);
@@ -79,7 +79,7 @@ class CompanyRepositoryTest {
 
     val column = sortArgumentCaptor.getValue().getColumns().getFirst();
     assertEquals(Sort.Direction.Descending, column.getDirection());
-    assertEquals("MarketCapitalization", column.getName());
+    assertEquals("marketCapitalization", column.getName());
 
     val params = new Object[2];
     params[0] = Double.parseDouble(filter1Value);

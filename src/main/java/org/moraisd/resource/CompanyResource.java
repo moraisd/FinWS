@@ -5,6 +5,7 @@ import java.util.List;
 import org.eclipse.microprofile.graphql.DefaultValue;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
+import org.eclipse.microprofile.graphql.NonNull;
 import org.eclipse.microprofile.graphql.Query;
 import org.moraisd.domain.Company;
 import org.moraisd.graphql.Filter;
@@ -15,11 +16,11 @@ public class CompanyResource {
 
   private final String DEFAULT_FILTER = """
       {
-          "orderBy":"MarketCapitalization",
+          "orderBy":"marketCapitalization",
           "sortingOrder":"Descending"
       }""";
 
-private final CompanyRepository repository;
+  private final CompanyRepository repository;
 
   @Inject
   public CompanyResource(CompanyRepository repository) {
@@ -32,12 +33,22 @@ private final CompanyRepository repository;
   }
 
   @Query
+  public List<String> getSymbols() {
+    return repository.getAllSymbols();
+  }
+
+  @Query
   public List<Company> getCompanies(@DefaultValue(DEFAULT_FILTER) Filter filter) {
     return repository.findByFilter(filter);
   }
 
   @Mutation
-  public void persistStocks(List<Company> stock) {
-    repository.persist(stock);
+  public void persistCompanies(List<Company> companies) {
+    repository.persistCompanies(companies);
+  }
+
+  @Mutation
+  public long deleteBySymbol(@NonNull List<@NonNull String> symbols) {
+    return repository.deleteBySymbol(symbols);
   }
 }

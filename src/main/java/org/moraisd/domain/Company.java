@@ -2,35 +2,33 @@ package org.moraisd.domain;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import lombok.Getter;
-import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.eclipse.microprofile.graphql.DefaultValue;
 
 @Getter
 @MongoEntity(collection = "companies")
 public class Company extends PanacheMongoEntity {
 
-  @BsonProperty("Symbol")
   public String symbol;
-  @BsonProperty("Sector")
   public String sector;
-  @BsonProperty("Industry")
   public String industry;
-  @BsonProperty("Currency")
   public String currency;
-  @BsonProperty("EBITDA")
-  public float ebitda;
-  @BsonProperty("MarketCapitalization")
-  public float marketCapitalization;
-  @BsonProperty("PERatio")
-  public float peRatio;
-  @BsonProperty("EVToEBITDA")
-  public float evToEbitda;
-  @BsonProperty("OperatingCashFlow")
-  public float operatingCashFlow;
-  @BsonProperty("CapitalExpenditures")
-  public float capitalExpenditures;
-  @BsonProperty("SharesOutstanding")
+  @DefaultValue("0")
+  public BigDecimal ebitda;
+  @DefaultValue("0")
+  public BigDecimal marketCapitalization;
+  @DefaultValue("0")
+  public BigDecimal peRatio;
+  @DefaultValue("0")
+  public BigDecimal evToEbitda;
+  @DefaultValue("0")
+  public BigDecimal operatingCashFlow;
+  @DefaultValue("0")
+  public BigDecimal capitalExpenditures;
   public String sharesOutstanding;
 
+  public OffsetDateTime lastUpdated;
 
 }

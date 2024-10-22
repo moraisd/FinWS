@@ -24,13 +24,13 @@ class CompanyResourceTest {
 
   @Test
   void shouldInvokeRepositoryOnceOnFilter() {
-    val filter = generateDefaultFilter();
+    val filter = generateFilter();
     when(companyRepository.findByFilter(filter)).thenReturn(any());
     companyResource.getCompanies(filter);
     verify(companyRepository).findByFilter(filter);
   }
 
-  private Filter generateDefaultFilter() {
+  private Filter generateFilter() {
     return new Filter();
   }
 }
