@@ -2,3 +2,6 @@ quarkus:
   mongodb:
     connection-string: mongodb://localhost:27017
     database: mydatabase
+  http:
+    limits:
+      max-body-size: 32M

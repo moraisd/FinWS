@@ -42,9 +42,19 @@ public class CompanyResource {
     return repository.findByFilter(filter);
   }
 
+  @Query
+  public List<String> findMostOutdatedStocks(int limit) {
+    return repository.findMostOutdatedStocks(limit);
+  }
+
   @Mutation
-  public void persistCompanies(List<Company> companies) {
-    repository.persistCompanies(companies);
+  public void persistSymbols(List<Company> companies) {
+    repository.persistSymbols(companies);
+  }
+
+  @Mutation
+  public void updateCompanies(List<Company> companies) {
+    repository.updateCompanies(companies);
   }
 
   @Mutation

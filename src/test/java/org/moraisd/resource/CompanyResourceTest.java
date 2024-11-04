@@ -31,6 +31,6 @@ class CompanyResourceTest {
   }
 
   private Filter generateFilter() {
-    return new Filter();
+    return new Filter(any(), any(), any());
   }
 }

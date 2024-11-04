@@ -2,19 +2,36 @@ package org.moraisd.repository;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.BulkWriteOptions;
+import com.mongodb.client.model.UpdateOneModel;
+import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.panache.common.Sort.Direction;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.val;
+import org.bson.BsonString;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.moraisd.domain.Company;
 import org.moraisd.graphql.Filter;
+import org.moraisd.graphql.Filter.SortingOrder;
 
 @QuarkusTest
 class CompanyRepositoryTest {
@@ -36,7 +53,8 @@ class CompanyRepositoryTest {
 
   @Test
   void shouldListAllDefaultFilter() {
-    val filter = generateDefaultFilter();
+    val filter = new Filter("marketCapitalization", SortingOrder.Descending,
+        null);
     when(companyRepository.findByFilter(filter)).thenCallRealMethod();
 
     companyRepository.findByFilter(filter);
@@ -44,8 +62,50 @@ class CompanyRepositoryTest {
     val sortArgumentCaptor = ArgumentCaptor.forClass(Sort.class);
     verify(companyRepository).listAll(sortArgumentCaptor.capture());
     val column = sortArgumentCaptor.getValue().getColumns().getFirst();
-    assertEquals("MarketCapitalization", column.getName());
+    assertEquals("marketCapitalization", column.getName());
     assertEquals(Sort.Direction.Descending, column.getDirection());
+  }
+
+  @Test
+  void bulkWriteStocksAndInsertNewLastUpdate() {
+    List<Company> companies = generateCompanies();
+    doCallRealMethod().when(companyRepository).updateCompanies(companies);
+
+    val mongoCollectionMock = mock(MongoCollection.class, RETURNS_DEEP_STUBS);
+
+    when(companyRepository.mongoCollection()).thenReturn(
+        mongoCollectionMock);
+
+    companyRepository.updateCompanies(companies);
+
+    val operations = ArgumentCaptor.forClass(List.class);
+    val bulkWriteOptions = ArgumentCaptor.forClass(BulkWriteOptions.class);
+    verify(mongoCollectionMock).bulkWrite(operations.capture(), bulkWriteOptions.capture());
+
+    val mongoFilter1 = ((UpdateOneModel) operations.getValue()
+        .getFirst())
+        .getFilter()
+        .toBsonDocument();
+
+    assertTrue(mongoFilter1
+        .containsKey("symbol"));
+
+    assertTrue(mongoFilter1
+        .containsValue(new BsonString("V")));
+
+    val mongoFilter2 = ((UpdateOneModel) operations.getValue()
+        .get(1))
+        .getFilter()
+        .toBsonDocument();
+
+    assertTrue(mongoFilter2
+        .containsKey("symbol"));
+
+    assertTrue(mongoFilter2
+        .containsValue(new BsonString("AAPL")));
+
+    assertFalse(bulkWriteOptions.getValue().isOrdered());
+
   }
 
   @Test
@@ -53,15 +113,17 @@ class CompanyRepositoryTest {
     val filter1Field = "evToEbitda";
     val filter1Operator = "<=";
     val filter1Value = "5.5";
-    val filterBy1 = generateFilterBy(filter1Field, filter1Operator, filter1Value);
+
+    val filterBy1 = new Filter.FilterBy(filter1Field, filter1Operator, filter1Value);
 
     val filter2Field = "Sector";
     val filter2Operator = "=";
     val filter2Value = "MANUFACTURING";
-    val filterBy2 = generateFilterBy(filter2Field, filter2Operator, filter2Value);
 
-    val filter = generateDefaultFilter();
-    filter.setFilterBy(List.of(filterBy1, filterBy2));
+    val filterBy2 = new Filter.FilterBy(filter2Field, filter2Operator, filter2Value);
+
+    val filter = new Filter("marketCapitalization", SortingOrder.Descending,
+        List.of(filterBy1, filterBy2));
 
     when(companyRepository.findByFilter(filter)).thenCallRealMethod();
     companyRepository.findByFilter(filter);
@@ -82,26 +144,63 @@ class CompanyRepositoryTest {
     assertEquals("marketCapitalization", column.getName());
 
     val params = new Object[2];
-    params[0] = Double.parseDouble(filter1Value);
+    params[0] = new BigDecimal(filter1Value);
     params[1] = filter2Value;
     assertArrayEquals(params, paramsArgumentCaptor.getValue());
 
   }
 
-  private static Filter generateDefaultFilter() {
-    val filter = new Filter();
-    filter.setOrderBy("MarketCapitalization");
-    filter.setSortingOrder(Filter.SortingOrder.Descending);
-    return filter;
+  @Test
+  void deleteBySymbol() {
+    val symbols = generateCompanies().stream().map(Company::getSymbol).toList();
+    when(companyRepository.deleteBySymbol(
+        symbols)).thenCallRealMethod();
+
+    companyRepository.deleteBySymbol(symbols);
+
+    verify(companyRepository).delete("symbol in ?1", symbols);
+
   }
 
-  private static Filter.FilterBy generateFilterBy(String field, String operator, String value) {
-    val filterBy = new Filter.FilterBy();
-    filterBy.setField(field);
-    filterBy.setOperator(operator);
-    filterBy.setValue(value);
-    return filterBy;
+  @Test
+  void findMostOutdatedStocks() {
+    int limit = 10;
+    when(companyRepository.findMostOutdatedStocks(anyInt())).thenCallRealMethod();
 
+    PanacheQuery<Company> panacheQueryMock = mock(RETURNS_MOCKS);
+    when(companyRepository.find(anyString(), any(Sort.class), any(Object[].class))).thenReturn(
+        panacheQueryMock);
+
+    companyRepository.findMostOutdatedStocks(limit);
+
+    val findFilter = ArgumentCaptor.forClass(String.class);
+    val sortByCaptor = ArgumentCaptor.forClass(Sort.class);
+    val limitIndexCaptor = ArgumentCaptor.forClass(Integer.class);
+
+    verify(companyRepository).find(findFilter.capture(),
+        sortByCaptor.capture(), ArgumentCaptor.forClass(Object[].class).capture());
+
+    verify(panacheQueryMock).range(eq(0), limitIndexCaptor.capture());
+
+    assertEquals(findFilter.getValue(), "{blacklisted:false}");
+
+    val column = sortByCaptor.getValue().getColumns().getFirst();
+    assertEquals(column.getName(), "lastUpdated");
+    assertEquals(column.getDirection(), Direction.Ascending);
+
+    assertEquals(limitIndexCaptor.getValue(), limit - 1);
+
+
+  }
+
+  private static List<Company> generateCompanies() {
+    val company1 = new Company();
+    company1.setSymbol("V");
+
+    val company2 = new Company();
+    company2.setSymbol("AAPL");
+
+    return List.of(company1, company2);
   }
 
 }

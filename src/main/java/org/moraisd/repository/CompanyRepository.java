@@ -1,12 +1,20 @@
 package org.moraisd.repository;
 
+import com.mongodb.client.model.BulkWriteOptions;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.val;
+import org.bson.Document;
 import org.moraisd.domain.Company;
 import org.moraisd.domain.mongodb.CompanySymbol;
 import org.moraisd.graphql.Filter;
@@ -26,7 +34,8 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
   public List<String> getAllSymbols() {
     return findAll()
         .project(CompanySymbol.class)
-        .stream().map(CompanySymbol::symbol)
+        .stream()
+        .map(CompanySymbol::symbol)
         .toList();
   }
 
@@ -34,9 +43,9 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
     if (filter == null) {
       return listAll();
     }
-    val filterByList = filter.getFilterBy();
-    val sortBy = Sort.by(filter.getOrderBy(),
-        Direction.valueOf((filter.getSortingOrder().name())));
+    val filterByList = filter.filterBy();
+    val sortBy = Sort.by(filter.orderBy(),
+        Direction.valueOf((filter.sortingOrder().name())));
 
     if (filterByList == null || filterByList.isEmpty()) {
       return listAll(sortBy);
@@ -55,8 +64,20 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
     return list(query.toString(), sortBy, params);
   }
 
+  private static void generatePanacheQuery(StringBuilder query, FilterBy filterBy, int index,
+      int filtersAmount) {
+    query.append(filterBy.field())
+        .append(" ")
+        .append(filterBy.operator())
+        .append(" ")
+        .append("?").append(index + 1);
+    if (index != filtersAmount - 1) {
+      query.append(" and ");
+    }
+  }
+
   private static void generateParams(Object[] params, FilterBy filterBy, int index) {
-    val value = filterBy.getValue();
+    val value = filterBy.value();
     try {
       params[index] = new BigDecimal(value);
     } catch (NumberFormatException e) {
@@ -64,17 +85,29 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
     }
   }
 
-  private static void generatePanacheQuery(StringBuilder query, FilterBy filterBy, int index,
-      int filtersAmount) {
-    query.append(filterBy.getField()).append(" ").append(filterBy.getOperator()).append(" ")
-        .append("?").append(index + 1);
-    if (index != filtersAmount - 1) {
-      query.append(" and ");
+  public void updateCompanies(List<Company> companies) {
+    val operations = new ArrayList<WriteModel<Company>>();
+
+    for (val company : companies) {
+      company.setLastUpdated(LocalDateTime.now(ZoneOffset.UTC));
+      operations.add(
+          new UpdateOneModel<>(Filters.eq("symbol", company.getSymbol()),
+              new Document("$set", company)));
     }
+
+    this.mongoCollection().bulkWrite(operations, new BulkWriteOptions().ordered(false));
   }
 
-  public void persistCompanies(List<Company> companies) {
+  public void persistSymbols(List<Company> companyList) {
+    this.persist(companyList);
+  }
 
-    this.persistOrUpdate(companies);
+  public List<String> findMostOutdatedStocks(int limit) {
+    return this.find("{blacklisted:false}", Sort.by("lastUpdated", Direction.Ascending))
+        .range(0, limit - 1)
+        .project(CompanySymbol.class)
+        .stream()
+        .map(CompanySymbol::symbol)
+        .toList();
   }
 }

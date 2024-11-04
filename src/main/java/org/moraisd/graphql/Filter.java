@@ -1,21 +1,17 @@
 package org.moraisd.graphql;
 
 import java.util.List;
-import lombok.Data;
 import lombok.Getter;
 import org.eclipse.microprofile.graphql.DefaultValue;
-import org.eclipse.microprofile.graphql.Description;
 import org.eclipse.microprofile.graphql.Input;
 
 @Input
-@Data
-public class Filter {
+public record Filter(@DefaultValue("MarketCapitalization")
+                     String orderBy,
+                     @DefaultValue("Descending")
+                     SortingOrder sortingOrder,
+                     List<FilterBy> filterBy) {
 
-  @DefaultValue("MarketCapitalization")
-  private String orderBy;
-  @DefaultValue("Descending")
-  private SortingOrder sortingOrder;
-  private List<FilterBy> filterBy;
 
   @Getter
   public enum SortingOrder {
@@ -23,11 +19,7 @@ public class Filter {
 
   }
 
-  @Data
-  public static class FilterBy {
+  public record FilterBy(String field, String operator, String value) {
 
-    private String field;
-    private String operator;
-    private String value;
   }
 }
