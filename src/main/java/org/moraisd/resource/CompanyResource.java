@@ -16,7 +16,7 @@ public class CompanyResource {
 
   private final String DEFAULT_FILTER = """
       {
-          "orderBy":"marketCapitalization",
+          "orderBy":"mktCap",
           "sortingOrder":"Descending"
       }""";
 
