@@ -103,7 +103,7 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
   }
 
   public List<String> findMostOutdatedStocks(int limit) {
-    return this.find("{blacklisted:false}", Sort.by("lastUpdated", Direction.Ascending))
+    return this.findAll(Sort.by("lastUpdated", Direction.Ascending))
         .range(0, limit - 1)
         .project(CompanySymbol.class)
         .stream()

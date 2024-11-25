@@ -168,27 +168,23 @@ class CompanyRepositoryTest {
     when(companyRepository.findMostOutdatedStocks(anyInt())).thenCallRealMethod();
 
     PanacheQuery<Company> panacheQueryMock = mock(RETURNS_MOCKS);
-    when(companyRepository.find(anyString(), any(Sort.class), any(Object[].class))).thenReturn(
+    when(companyRepository.findAll(any(Sort.class))).thenReturn(
         panacheQueryMock);
 
     companyRepository.findMostOutdatedStocks(limit);
 
-    val findFilter = ArgumentCaptor.forClass(String.class);
     val sortByCaptor = ArgumentCaptor.forClass(Sort.class);
     val limitIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
-    verify(companyRepository).find(findFilter.capture(),
-        sortByCaptor.capture(), ArgumentCaptor.forClass(Object[].class).capture());
+    verify(companyRepository).findAll(sortByCaptor.capture());
 
     verify(panacheQueryMock).range(eq(0), limitIndexCaptor.capture());
 
-    assertEquals(findFilter.getValue(), "{blacklisted:false}");
-
     val column = sortByCaptor.getValue().getColumns().getFirst();
-    assertEquals(column.getName(), "lastUpdated");
-    assertEquals(column.getDirection(), Direction.Ascending);
+    assertEquals("lastUpdated", column.getName());
+    assertEquals(Direction.Ascending, column.getDirection());
 
-    assertEquals(limitIndexCaptor.getValue(), limit - 1);
+    assertEquals(limit - 1, limitIndexCaptor.getValue());
 
 
   }

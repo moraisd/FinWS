@@ -65,8 +65,6 @@ public class Company extends PanacheMongoEntity {
   @Name("isAdr")
   @DefaultValue("false")
   private boolean adr;
-  @DefaultValue("false")
-  private boolean blacklisted;
 
   private TtmFundamentalMetrics ttmFundamentalMetrics;
   private List<AnnualFundamentalMetrics> annualFundamentalMetrics;
