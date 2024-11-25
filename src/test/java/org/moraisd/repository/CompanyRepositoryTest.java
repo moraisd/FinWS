@@ -53,7 +53,7 @@ class CompanyRepositoryTest {
 
   @Test
   void shouldListAllDefaultFilter() {
-    val filter = new Filter("marketCapitalization", SortingOrder.Descending,
+    val filter = new Filter("mktCap", SortingOrder.Descending,
         null);
     when(companyRepository.findByFilter(filter)).thenCallRealMethod();
 
@@ -62,7 +62,7 @@ class CompanyRepositoryTest {
     val sortArgumentCaptor = ArgumentCaptor.forClass(Sort.class);
     verify(companyRepository).listAll(sortArgumentCaptor.capture());
     val column = sortArgumentCaptor.getValue().getColumns().getFirst();
-    assertEquals("marketCapitalization", column.getName());
+    assertEquals("mktCap", column.getName());
     assertEquals(Sort.Direction.Descending, column.getDirection());
   }
 
@@ -122,7 +122,7 @@ class CompanyRepositoryTest {
 
     val filterBy2 = new Filter.FilterBy(filter2Field, filter2Operator, filter2Value);
 
-    val filter = new Filter("marketCapitalization", SortingOrder.Descending,
+    val filter = new Filter("mktCap", SortingOrder.Descending,
         List.of(filterBy1, filterBy2));
 
     when(companyRepository.findByFilter(filter)).thenCallRealMethod();
@@ -141,7 +141,7 @@ class CompanyRepositoryTest {
 
     val column = sortArgumentCaptor.getValue().getColumns().getFirst();
     assertEquals(Sort.Direction.Descending, column.getDirection());
-    assertEquals("marketCapitalization", column.getName());
+    assertEquals("mktCap", column.getName());
 
     val params = new Object[2];
     params[0] = new BigDecimal(filter1Value);

@@ -6,7 +6,7 @@ import org.eclipse.microprofile.graphql.DefaultValue;
 import org.eclipse.microprofile.graphql.Input;
 
 @Input
-public record Filter(@DefaultValue("MarketCapitalization")
+public record Filter(@DefaultValue("mktCap")
                      String orderBy,
                      @DefaultValue("Descending")
                      SortingOrder sortingOrder,
