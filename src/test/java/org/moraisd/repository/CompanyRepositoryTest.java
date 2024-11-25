@@ -122,8 +122,13 @@ class CompanyRepositoryTest {
 
     val filterBy2 = new Filter.FilterBy(filter2Field, filter2Operator, filter2Value);
 
+    val filter3Field = "companyName";
+    val filter3Operator = "!=";
+
+    val filterBy3 = new Filter.FilterBy(filter3Field, filter3Operator, null);
+
     val filter = new Filter("mktCap", SortingOrder.Descending,
-        List.of(filterBy1, filterBy2));
+        List.of(filterBy1, filterBy2, filterBy3));
 
     when(companyRepository.findByFilter(filter)).thenCallRealMethod();
     companyRepository.findByFilter(filter);
@@ -136,16 +141,17 @@ class CompanyRepositoryTest {
 
     assertEquals(
         filter1Field + " " + filter1Operator + " " + "?1 and " + filter2Field + " "
-            + filter2Operator + " " + "?2",
+            + filter2Operator + " " + "?2 and " + filter3Field + " " + filter3Operator + " " + "?3",
         queryCaptor.getValue());
 
     val column = sortArgumentCaptor.getValue().getColumns().getFirst();
     assertEquals(Sort.Direction.Descending, column.getDirection());
     assertEquals("mktCap", column.getName());
 
-    val params = new Object[2];
+    val params = new Object[3];
     params[0] = new BigDecimal(filter1Value);
     params[1] = filter2Value;
+    params[2] = null;
     assertArrayEquals(params, paramsArgumentCaptor.getValue());
 
   }
