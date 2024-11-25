@@ -80,7 +80,7 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
     val value = filterBy.value();
     try {
       params[index] = new BigDecimal(value);
-    } catch (NumberFormatException e) {
+    } catch (NumberFormatException | NullPointerException e) {
       params[index] = value;
     }
   }
