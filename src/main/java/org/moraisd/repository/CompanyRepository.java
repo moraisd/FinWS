@@ -71,7 +71,7 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
         .append(filterBy.operator())
         .append(" ")
         .append("?").append(index + 1);
-    if (index != filtersAmount - 1) {
+    if (index < filtersAmount - 1) {
       query.append(" and ");
     }
   }
