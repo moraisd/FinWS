@@ -1,5 +1,6 @@
 package org.moraisd.resource;
 
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import java.util.List;
 import org.eclipse.microprofile.graphql.DefaultValue;
@@ -28,22 +29,22 @@ public class CompanyResource {
   }
 
   @Query
-  public Company getCompany(String symbol) {
+  public Uni<Company> getCompany(String symbol) {
     return repository.findBySymbol(symbol);
   }
 
   @Query
-  public List<String> getSymbols() {
+  public Uni<List<String>> getSymbols() {
     return repository.getAllSymbols();
   }
 
   @Query
-  public List<Company> getCompanies(@DefaultValue(DEFAULT_FILTER) Filter filter) {
+  public Uni<List<Company>> getCompanies(@DefaultValue(DEFAULT_FILTER) Filter filter) {
     return repository.findByFilter(filter);
   }
 
   @Query
-  public List<String> findMostOutdatedStocks(int limit) {
+  public Uni<List<String>> findMostOutdatedStocks(int limit) {
     return repository.findMostOutdatedStocks(limit);
   }
 
@@ -58,7 +59,7 @@ public class CompanyResource {
   }
 
   @Mutation
-  public long deleteBySymbol(@NonNull List<@NonNull String> symbols) {
+  public Uni<Long> deleteBySymbol(@NonNull List<@NonNull String> symbols) {
     return repository.deleteBySymbol(symbols);
   }
 }

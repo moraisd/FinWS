@@ -4,9 +4,10 @@ import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
-import io.quarkus.mongodb.panache.PanacheMongoRepository;
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoRepository;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,25 +22,26 @@ import org.moraisd.graphql.Filter;
 import org.moraisd.graphql.Filter.FilterBy;
 
 @ApplicationScoped
-public class CompanyRepository implements PanacheMongoRepository<Company> {
+public class CompanyRepository implements ReactivePanacheMongoRepository<Company> {
 
-  public Company findBySymbol(String s) {
+  public Uni<Company> findBySymbol(String s) {
     return find("symbol", s).firstResult();
   }
 
-  public long deleteBySymbol(List<String> symbols) {
+  public Uni<Long> deleteBySymbol(List<String> symbols) {
     return delete("symbol in ?1", symbols);
   }
 
-  public List<String> getAllSymbols() {
+  public Uni<List<String>> getAllSymbols() {
     return findAll()
         .project(CompanySymbol.class)
         .stream()
         .map(CompanySymbol::symbol)
-        .toList();
+        .collect()
+        .asList();
   }
 
-  public List<Company> findByFilter(Filter filter) {
+  public Uni<List<Company>> findByFilter(Filter filter) {
     if (filter == null) {
       return listAll();
     }
@@ -102,12 +104,13 @@ public class CompanyRepository implements PanacheMongoRepository<Company> {
     this.persist(companyList);
   }
 
-  public List<String> findMostOutdatedStocks(int limit) {
+  public Uni<List<String>> findMostOutdatedStocks(int limit) {
     return this.findAll(Sort.by("lastUpdated", Direction.Ascending))
         .range(0, limit - 1)
         .project(CompanySymbol.class)
         .stream()
         .map(CompanySymbol::symbol)
-        .toList();
+        .collect()
+        .asList();
   }
 }

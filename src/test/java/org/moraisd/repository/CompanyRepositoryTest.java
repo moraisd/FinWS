@@ -15,10 +15,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.UpdateOneModel;
-import io.quarkus.mongodb.panache.PanacheQuery;
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheQuery;
+import io.quarkus.mongodb.reactive.ReactiveMongoCollection;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import io.quarkus.test.InjectMock;
@@ -71,10 +71,9 @@ class CompanyRepositoryTest {
     List<Company> companies = generateCompanies();
     doCallRealMethod().when(companyRepository).updateCompanies(companies);
 
-    val mongoCollectionMock = mock(MongoCollection.class, RETURNS_DEEP_STUBS);
+    val mongoCollectionMock = mock(ReactiveMongoCollection.class, RETURNS_DEEP_STUBS);
 
-    when(companyRepository.mongoCollection()).thenReturn(
-        mongoCollectionMock);
+    when(companyRepository.mongoCollection()).thenReturn(mongoCollectionMock);
 
     companyRepository.updateCompanies(companies);
 
@@ -173,9 +172,8 @@ class CompanyRepositoryTest {
     int limit = 10;
     when(companyRepository.findMostOutdatedStocks(anyInt())).thenCallRealMethod();
 
-    PanacheQuery<Company> panacheQueryMock = mock(RETURNS_MOCKS);
-    when(companyRepository.findAll(any(Sort.class))).thenReturn(
-        panacheQueryMock);
+    ReactivePanacheQuery<Company> panacheQueryMock = mock(RETURNS_MOCKS);
+    when(companyRepository.findAll(any(Sort.class))).thenReturn(panacheQueryMock);
 
     companyRepository.findMostOutdatedStocks(limit);
 
