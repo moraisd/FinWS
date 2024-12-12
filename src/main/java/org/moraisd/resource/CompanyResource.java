@@ -1,5 +1,6 @@
 package org.moraisd.resource;
 
+import io.smallrye.common.annotation.NonBlocking;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -49,16 +50,19 @@ public class CompanyResource {
   }
 
   @Mutation
+  @NonBlocking
   public void persistSymbols(List<Company> companies) {
     repository.persistSymbols(companies);
   }
 
   @Mutation
+  @NonBlocking
   public void updateCompanies(List<Company> companies) {
     repository.updateCompanies(companies);
   }
 
   @Mutation
+  @NonBlocking
   public Uni<Long> deleteBySymbol(@NonNull List<@NonNull String> symbols) {
     return repository.deleteBySymbol(symbols);
   }
