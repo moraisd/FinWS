@@ -1,7 +1,7 @@
 package org.moraisd.domain;
 
-import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
+import io.quarkus.mongodb.panache.reactive.ReactivePanacheMongoEntity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -14,7 +14,7 @@ import org.eclipse.microprofile.graphql.Name;
 @MongoEntity(collection = "companies")
 @Getter
 @Setter
-public class Company extends PanacheMongoEntity {
+public class Company extends ReactivePanacheMongoEntity {
 
   private String symbol;
   private String name;
