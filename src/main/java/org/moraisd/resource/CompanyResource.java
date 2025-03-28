@@ -30,35 +30,39 @@ public class CompanyResource {
   }
 
   @Query
+  @NonBlocking
   public Uni<Company> getCompany(String symbol) {
     return repository.findBySymbol(symbol);
   }
 
   @Query
+  @NonBlocking
   public Uni<List<String>> getSymbols() {
     return repository.getAllSymbols();
   }
 
   @Query
+  @NonBlocking
   public Uni<List<Company>> getCompanies(@DefaultValue(DEFAULT_FILTER) Filter filter) {
     return repository.findByFilter(filter);
   }
 
   @Query
+  @NonBlocking
   public Uni<List<String>> findMostOutdatedStocks(int limit) {
     return repository.findMostOutdatedStocks(limit);
   }
 
   @Mutation
   @NonBlocking
-  public void persistSymbols(List<Company> companies) {
-    repository.persistSymbols(companies);
+  public Uni<Void> persistSymbols(List<Company> companies) {
+    return repository.persistSymbols(companies);
   }
 
   @Mutation
   @NonBlocking
-  public void updateCompanies(List<Company> companies) {
-    repository.updateCompanies(companies);
+  public Uni<Void> updateCompanies(List<Company> companies) {
+    return repository.updateCompanies(companies).replaceWithVoid();
   }
 
   @Mutation

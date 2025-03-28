@@ -1,5 +1,6 @@
 package org.moraisd.repository;
 
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOneModel;
@@ -87,7 +88,7 @@ public class CompanyRepository implements ReactivePanacheMongoRepository<Company
     }
   }
 
-  public void updateCompanies(List<Company> companies) {
+  public Uni<BulkWriteResult> updateCompanies(List<Company> companies) {
     val operations = new ArrayList<WriteModel<Company>>();
 
     for (val company : companies) {
@@ -97,11 +98,11 @@ public class CompanyRepository implements ReactivePanacheMongoRepository<Company
               new Document("$set", company)));
     }
 
-    this.mongoCollection().bulkWrite(operations, new BulkWriteOptions().ordered(false));
+    return this.mongoCollection().bulkWrite(operations, new BulkWriteOptions().ordered(false));
   }
 
-  public void persistSymbols(List<Company> companyList) {
-    this.persist(companyList);
+  public Uni<Void> persistSymbols(List<Company> companyList) {
+    return this.persist(companyList);
   }
 
   public Uni<List<String>> findMostOutdatedStocks(int limit) {
